@@ -16,6 +16,9 @@ namespace EloService
             // Add automapper because lazy
             builder.Services.AddAutoMapper(config => config.AddProfile<MapperProfile>());
 
+            // Add Healthcheck Endpoint
+            builder.Services.AddHealthChecks();
+
             // Add Swagger
             if (builder.Environment.IsDevelopment())
             {
@@ -47,6 +50,7 @@ namespace EloService
 
             app.UseAuthorization();
 
+            app.MapHealthChecks("/healthz");
             app.MapControllers();
 
             app.Run();
