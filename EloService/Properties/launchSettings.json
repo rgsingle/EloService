@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "EloForDumDums": {
+    "EloService": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",

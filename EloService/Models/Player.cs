@@ -1,7 +1,10 @@
-﻿namespace EloForDumDums.Dtos
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace EloService.Models
 {
-    public class PlayerDto
+    public class Player
     {
+        [Key]
         public int UserId { get; set; }
 
         public int Wins { get; set; }

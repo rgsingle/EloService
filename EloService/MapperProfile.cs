@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using EloForDumDums.Dtos;
-using EloForDumDums.Models;
+using EloService.Dtos;
+using EloService.Models;
 
-namespace EloForDumDums
+namespace EloService
 {
     public class MapperProfile : Profile
     {

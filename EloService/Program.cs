@@ -1,7 +1,7 @@
-using EloForDumDums.Models;
+using EloService.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace EloForDumDums
+namespace EloService
 {
     public class Program
     {
@@ -13,11 +13,17 @@ namespace EloForDumDums
 
             builder.Services.AddControllers();
 
+            // Add automapper because lazy
             builder.Services.AddAutoMapper(config => config.AddProfile<MapperProfile>());
 
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            // Add Swagger
+            if (builder.Environment.IsDevelopment())
+            {
+                builder.Services.AddEndpointsApiExplorer();
+                builder.Services.AddSwaggerGen();
+            }
 
+            // Add Database Context (Postgres or Inmemory)
             var connstring = builder.Configuration.GetValue("Database", "inmemory");
 
             Console.WriteLine(connstring);
@@ -27,7 +33,7 @@ namespace EloForDumDums
             else
                 builder.Services.AddDbContext<Context>(options => options.UseNpgsql(connstring));
             
-
+            // Build app
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -40,7 +46,6 @@ namespace EloForDumDums
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace EloForDumDums.Models
+namespace EloService.Models
 {
     public class Context : DbContext
     {

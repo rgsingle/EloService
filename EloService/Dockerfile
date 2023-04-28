@@ -7,16 +7,16 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["EloForDumDums/EloForDumDums.csproj", "EloForDumDums/"]
-RUN dotnet restore "EloForDumDums/EloForDumDums.csproj"
+COPY ["EloService/EloService.csproj", "EloService/"]
+RUN dotnet restore "EloService/EloService.csproj"
 COPY . .
-WORKDIR "/src/EloForDumDums"
-RUN dotnet build "EloForDumDums.csproj" -c Release -o /app/build
+WORKDIR "/src/EloService"
+RUN dotnet build "EloService.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "EloForDumDums.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "EloService.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "EloForDumDums.dll"]
+ENTRYPOINT ["dotnet", "EloService.dll"]

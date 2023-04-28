@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using EloForDumDums.Dtos;
-using EloForDumDums.Models;
+using EloService.Dtos;
+using EloService.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EloForDumDums.Controllers
+namespace EloService.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
