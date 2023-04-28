@@ -72,12 +72,18 @@ namespace EloService.Controllers
             {
                 player.Wins = value.Wins;
                 player.Losses = value.Losses;
+
+                // TODO: Win/Loss Calculation, ignore winlossratio in Dto
                 player.WinLossRatio = value.WinLossRatio;
+
                 player.CurrentWinstreak = value.CurrentWinstreak;
                 player.CurrentLossstreak = value.CurrentLossstreak;
                 player.LongestLossstreak = value.LongestLossstreak;
                 player.LongestWinstreak = value.LongestWinstreak;
+
+                // TODO: Elo Calculation, ignore winlossratio in Dto
                 player.Elo = value.Elo;
+
                 player.XpMultiplier = value.XpMultiplier;
                 
                 _context.Players.Update(player);
