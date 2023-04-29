@@ -9,6 +9,7 @@ namespace EloService
         public MapperProfile()
         {
             CreateMap<Player, PlayerDto>();
+            CreateMap<MatchResult, MatchResultDto>();
         }
     }
 }

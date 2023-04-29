@@ -1,4 +1,5 @@
 using EloService.Models;
+using EloService.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace EloService
@@ -15,6 +16,9 @@ namespace EloService
 
             // Add automapper because lazy
             builder.Services.AddAutoMapper(config => config.AddProfile<MapperProfile>());
+
+            // Add helper service
+            builder.Services.AddScoped<EloHelperService>();
 
             // Add Healthcheck Endpoint
             builder.Services.AddHealthChecks();

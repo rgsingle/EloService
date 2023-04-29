@@ -5,6 +5,8 @@ namespace EloService.Models
     public class Player
     {
         [Key]
+        public Guid Id { get; set; }
+
         public int UserId { get; set; }
 
         public int Wins { get; set; }
@@ -22,7 +24,5 @@ namespace EloService.Models
         public int CurrentWinstreak { get; set; }
 
         public int CurrentLossstreak { get; set; }
-
-        public double XpMultiplier { get; set; } = 1;
     }
 }

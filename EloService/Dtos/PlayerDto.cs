@@ -19,7 +19,5 @@
         public int CurrentWinstreak { get; set; }
 
         public int CurrentLossstreak { get; set; }
-
-        public double XpMultiplier { get; set; } = 1;
     }
 }
