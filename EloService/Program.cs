@@ -33,13 +33,11 @@ namespace EloService
             // Add Database Context (Postgres or Inmemory)
             var connstring = builder.Configuration.GetValue("Database", "inmemory");
 
-            Console.WriteLine(connstring);
-
             if (connstring.ToLower() == "inmemory")
                 builder.Services.AddDbContext<Context>(options => options.UseInMemoryDatabase("test.db"));
             else
                 builder.Services.AddDbContext<Context>(options => options.UseNpgsql(connstring));
-            
+
             // Build app
             var app = builder.Build();
 

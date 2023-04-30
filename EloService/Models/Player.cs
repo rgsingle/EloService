@@ -13,9 +13,13 @@ namespace EloService.Models
 
         public int Losses { get; set; }
 
-        public double WinLossRatio { get; set; }
+        public int MatchesPlayed => Wins + Losses;
+
+        public double WinLossRatio => (double)Wins / MatchesPlayed;
 
         public int Elo { get; set; }
+
+        public int HighestElo { get; set; }
 
         public int LongestWinstreak { get; set; }
 

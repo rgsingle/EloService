@@ -4,10 +4,6 @@ namespace EloService.Services
 {
     public class EloHelperService
     {
-        private const int MaxEloGain = 50;
-        private const int EloK = 32;
-        private const int MinEloGain = 14;
-
         private readonly ILogger<EloHelperService> _logger;
 
         public EloHelperService(ILogger<EloHelperService> logger)
@@ -16,11 +12,28 @@ namespace EloService.Services
         }
 
         /// <summary>
-        /// Calculates the expectation for player 1 to win
+        /// Calculates the expectation for team 1 to win
         /// </summary>
-        public double ProbabilityToWin(int player1Rating, int player2Rating)
+        private static double ProbabilityToWin(IEnumerable<Player> team1, IEnumerable<Player> team2)
         {
-            return 1 / (1 + Math.Pow(10, (player2Rating - player1Rating) / 400.0));
+            var team1Elo = CalculateTeamElo(team1);
+            var team2Elo = CalculateTeamElo(team2);
+
+            return 1 / (1 + Math.Pow(10, (team1Elo - team2Elo) / 400.0));
+        }
+
+        /// <summary>
+        /// Calculate the K-Factor (Elo gain/loss) for a player
+        /// </summary>
+        private static double CalculateKFactor(Player player)
+        {
+            // US Chess Foundation (USCF)
+            if (player.Elo < 2100)
+                return 32;
+            else if (player.Elo < 2400)
+                return 24;
+            else
+                return 16;
         }
 
         /// <summary>
@@ -28,12 +41,11 @@ namespace EloService.Services
         /// If player 1 wins, add the delta to player 1 and subtract from player 2.
         /// If player 2 wins, add the delta to player 2 and subtract from player 1.
         /// </summary>
-        public int CalculateEloDelta(double winProbability)
+        private static int CalculateEloDelta(Player player, double winProbability)
         {
-            int delta = (int)(EloK * (1 - winProbability));
+            int delta = (int)(CalculateKFactor(player) * (1 - winProbability));
 
-            delta = Math.Max(delta, MinEloGain);
-            delta = Math.Min(delta, MaxEloGain);
+            // TODO: Bound this?
 
             return delta;
         }
@@ -41,51 +53,15 @@ namespace EloService.Services
         /// <summary>
         /// Sum the players's elos
         /// </summary>
-        public int CalculateTeamElo(IEnumerable<Player> players)
+        private static int CalculateTeamElo(IEnumerable<Player> players)
         {
             return players.Sum(p => p.Elo);
         }
 
         /// <summary>
-        /// Update the elo for two teams of players
-        /// </summary>
-        public void UpdateElos(IEnumerable<Player> team1, IEnumerable<Player> team2, bool team1Win)
-        {
-            var team1Elo = CalculateTeamElo(team1);
-            var team2Elo = CalculateTeamElo(team2);
-
-            if (team1Win)
-            {
-                var probability = ProbabilityToWin(team1Elo, team2Elo);
-                var delta = CalculateEloDelta(probability);
-
-                foreach(Player p in team1)
-                    p.Elo += delta;
-                foreach (Player p in team2)
-                    p.Elo -= delta;
-
-                _logger.LogDebug("Updated elos for: Winners = [{0}], Losers = [{1}]. Probability = {2}%, Gain = {3} points.",
-                    string.Join(", ", team1.Select(p => p.UserId)), string.Join(", ", team2.Select(p => p.UserId)), probability * 100, delta);
-            }
-            else
-            {
-                var probability = ProbabilityToWin(team2Elo, team1Elo);
-                var delta = CalculateEloDelta(probability);
-
-                foreach (Player p in team2)
-                    p.Elo += delta;
-                foreach (Player p in team1)
-                    p.Elo -= delta;
-
-                _logger.LogDebug("Updated elos for: Winners = [{0}], Losers = [{1}]. Probability = {2}%, Gain = {3} points.",
-                    string.Join(", ", team2.Select(p => p.UserId)), string.Join(", ", team1.Select(p => p.UserId)), probability * 100, delta);
-            }
-        }
-
-        /// <summary>
         /// Update the win/loss/streak values for each player
         /// </summary>
-        public void UpdateWinLoss(IEnumerable<Player> team, bool didTeamWin)
+        private static void UpdateWinLoss(IEnumerable<Player> team, bool didTeamWin)
         {
             foreach (var player in team)
             {
@@ -109,9 +85,39 @@ namespace EloService.Services
                     player.CurrentWinstreak = 0;
                     player.Losses++;
                 }
-
-                player.WinLossRatio = (double)player.Wins / (player.Wins + player.Losses);
             }
+        }
+
+        /// <summary>
+        /// Update the elo for two teams of players
+        /// </summary>
+        public void UpdateElos(IEnumerable<Player> team1, IEnumerable<Player> team2, bool team1Win)
+        {
+            IEnumerable<Player> winners = team1Win ? team1 : team2;
+            IEnumerable<Player> losers = team1Win ? team2 : team1;
+            double probabilityToWin = ProbabilityToWin(winners, losers);
+
+            // Update Elos
+            foreach (Player player in winners)
+                player.Elo += CalculateEloDelta(player, probabilityToWin);
+
+            foreach (Player player in losers)
+                player.Elo -= CalculateEloDelta(player, probabilityToWin);
+
+            // Log Results
+            _logger.LogDebug("Updated elos for: Winners = [{winners}], Losers = [{losers}]. Probability = {prob}%.",
+                string.Join(", ", winners.Select(p => p.UserId)), string.Join(", ", losers.Select(p => p.UserId)), probabilityToWin * 100);
+
+            // Update Highest Elos
+            foreach (Player player in team1)
+                player.HighestElo = Math.Max(player.HighestElo, player.Elo);
+
+            foreach (Player player in team2)
+                player.HighestElo = Math.Max(player.HighestElo, player.Elo);
+
+            // Update Win/Loss Record
+            UpdateWinLoss(winners, true);
+            UpdateWinLoss(losers, false);
         }
     }
 }

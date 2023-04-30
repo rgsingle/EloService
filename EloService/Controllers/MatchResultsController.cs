@@ -41,10 +41,6 @@ namespace EloService.Controllers
             // Update Elos
             _eloHelper.UpdateElos(team1, team2, value.DidTeam1Win);
 
-            // Update WinLoss
-            _eloHelper.UpdateWinLoss(team1, value.DidTeam1Win);
-            _eloHelper.UpdateWinLoss(team2, !value.DidTeam1Win);
-
             await _context.SaveChangesAsync();
         }
     }
