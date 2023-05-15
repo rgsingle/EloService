@@ -40,7 +40,7 @@ namespace EloService.Controllers
             return ret;
         }
 
-        [HttpGet]
+        [HttpGet("{id}")]
         public async Task<int> GetLeaderboardPosition(int playerId)
         {
             return await _context.Players

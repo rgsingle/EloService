@@ -10,5 +10,6 @@ Included in the release are a migrations sql script that should upgrade your dat
 # Endpoints
 
 * `/swagger`: When running in a dev environment ('DOTNET_ENVIRONMENT' environment variable or 'Environment' CLI setting)
-* GET `/api/players`: Gets all players in the database
+* GET:  `/api/players`: Gets all players in the database
 * POST: `/api/matchresults`: Post a new match result with a list of players in each team and which team won
+* GET:  `/api/leaderboard': Get a page or player from the leaderboard
